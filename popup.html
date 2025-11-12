@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dark Site</title>
+  <style>
+    body {
+      width: 320px;
+      padding: 16px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #1e1e1e;
+      color: #e0e0e0;
+    }
+
+    h1 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #2d2d2d;
+      border-radius: 8px;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #4a4a4a;
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #4a90e2;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .control-group {
+      margin-bottom: 16px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #b0b0b0;
+    }
+
+    .control-value {
+      color: #4a90e2;
+      font-weight: 500;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #3a3a3a;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #4a90e2;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #4a90e2;
+      cursor: pointer;
+      border: none;
+    }
+
+    .site-toggle {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #3a3a3a;
+    }
+
+    .site-info {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #2d2d2d;
+      color: #e0e0e0;
+      border: 1px solid #4a4a4a;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #3a3a3a;
+      border-color: #4a90e2;
+    }
+
+    button.disabled {
+      background: #4a90e2;
+      border-color: #4a90e2;
+      color: white;
+    }
+
+    .footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #3a3a3a;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #4a90e2;
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌙 Dark Site</h1>
+  
+  <div class="toggle-container">
+    <span class="toggle-label">Dark Mode</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="enableToggle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div id="controls">
+    <div class="control-group">
+      <div class="control-label">
+        <span>Brightness</span>
+        <span class="control-value" id="brightnessValue">100%</span>
+      </div>
+      <input type="range" id="brightness" min="50" max="150" value="100">
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Contrast</span>
+        <span class="control-value" id="contrastValue">90%</span>
+      </div>
+      <input type="range" id="contrast" min="50" max="150" value="90">
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Sepia</span>
+        <span class="control-value" id="sepiaValue">10%</span>
+      </div>
+      <input type="range" id="sepia" min="0" max="100" value="10">
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Grayscale</span>
+        <span class="control-value" id="grayscaleValue">0%</span>
+      </div>
+      <input type="range" id="grayscale" min="0" max="100" value="0">
+    </div>
+  </div>
+
+  <div class="site-toggle">
+    <div class="site-info">Current site: <span id="currentSite">Loading...</span></div>
+    <button id="toggleSiteBtn">Toggle for this site</button>
+  </div>
+
+  <div class="footer">
+    <a href="options.html" target="_blank">⚙️ Advanced Settings</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

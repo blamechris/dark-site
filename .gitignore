@@ -1,0 +1,18 @@
+# Development files
+node_modules/
+.DS_Store
+*.log
+
+# Build artifacts
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+*.tmp
