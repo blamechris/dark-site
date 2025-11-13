@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Icon Generator for Universal Dark Mode</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    .instructions {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .icon-preview {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin: 20px 0;
+    }
+    canvas {
+      border: 2px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background: #8ab4f8;
+      color: #1a1a1a;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #aecbfa;
+    }
+    .button-group {
+      margin: 20px 0;
+    }
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌙 Universal Dark Mode Icon Generator</h1>
+
+  <div class="instructions">
+    <h2>Instructions:</h2>
+    <ol>
+      <li>The icons will be generated automatically below</li>
+      <li>Click the download buttons to save each icon size</li>
+      <li>Save them as: <code>icon16.png</code>, <code>icon48.png</code>, and <code>icon128.png</code></li>
+      <li>Place all three files in the <code>icons/</code> directory</li>
+      <li>The extension will then be ready to load in Chrome!</li>
+    </ol>
+  </div>
+
+  <h2>Icon Previews:</h2>
+
+  <div class="icon-preview">
+    <div>
+      <canvas id="icon16" width="16" height="16"></canvas>
+      <div>16x16</div>
+      <button onclick="downloadIcon('icon16', 'icon16.png')">Download</button>
+    </div>
+
+    <div>
+      <canvas id="icon48" width="48" height="48"></canvas>
+      <div>48x48</div>
+      <button onclick="downloadIcon('icon48', 'icon48.png')">Download</button>
+    </div>
+
+    <div>
+      <canvas id="icon128" width="128" height="128"></canvas>
+      <div>128x128</div>
+      <button onclick="downloadIcon('icon128', 'icon128.png')">Download</button>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button onclick="downloadAll()">Download All Icons</button>
+  </div>
+
+  <script>
+    // Draw icon on canvas
+    function drawIcon(canvas) {
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+      const scale = size / 128;
+
+      ctx.clearRect(0, 0, size, size);
+
+      // Background circle
+      ctx.beginPath();
+      ctx.arc(64 * scale, 64 * scale, 60 * scale, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fill();
+      ctx.strokeStyle = '#8ab4f8';
+      ctx.lineWidth = 4 * scale;
+      ctx.stroke();
+
+      // Crescent moon
+      ctx.fillStyle = '#8ab4f8';
+      ctx.beginPath();
+      ctx.arc(50 * scale, 64 * scale, 30 * scale, Math.PI * 0.5, Math.PI * 1.5);
+      ctx.arc(55 * scale, 64 * scale, 25 * scale, Math.PI * 1.5, Math.PI * 0.5, true);
+      ctx.closePath();
+      ctx.fill();
+
+      // Stars
+      const stars = [
+        [85, 35, 3],
+        [95, 50, 2],
+        [90, 70, 2.5],
+        [80, 85, 2]
+      ];
+
+      stars.forEach(([x, y, r]) => {
+        ctx.beginPath();
+        ctx.arc(x * scale, y * scale, r * scale, 0, Math.PI * 2);
+        ctx.fillStyle = '#8ab4f8';
+        ctx.fill();
+      });
+    }
+
+    // Download icon as PNG
+    function downloadIcon(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    // Download all icons
+    function downloadAll() {
+      downloadIcon('icon16', 'icon16.png');
+      setTimeout(() => downloadIcon('icon48', 'icon48.png'), 200);
+      setTimeout(() => downloadIcon('icon128', 'icon128.png'), 400);
+    }
+
+    // Generate icons on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      drawIcon(document.getElementById('icon16'));
+      drawIcon(document.getElementById('icon48'));
+      drawIcon(document.getElementById('icon128'));
+    });
+  </script>
+</body>
+</html>

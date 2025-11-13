@@ -1,0 +1,13 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#1a1a1a" stroke="#8ab4f8" stroke-width="4"/>
+
+  <!-- Crescent moon -->
+  <path d="M 45 30 A 30 30 0 1 0 45 98 A 25 25 0 1 1 45 30 Z" fill="#8ab4f8"/>
+
+  <!-- Stars -->
+  <circle cx="85" cy="35" r="3" fill="#8ab4f8"/>
+  <circle cx="95" cy="50" r="2" fill="#8ab4f8"/>
+  <circle cx="90" cy="70" r="2.5" fill="#8ab4f8"/>
+  <circle cx="80" cy="85" r="2" fill="#8ab4f8"/>
+</svg>
