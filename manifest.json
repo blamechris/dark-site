@@ -7,6 +7,7 @@
     "storage",
     "activeTab"
   ],
+  "_comment_host_permissions": "Required: <all_urls> is necessary for a universal dark mode extension to inject CSS into all websites. This broad permission enables the extension to darken any page the user visits, which is the core functionality. Users can disable the extension per-site if desired.",
   "host_permissions": [
     "<all_urls>"
   ],

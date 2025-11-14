@@ -43,6 +43,8 @@ async function loadSettings() {
       const intensityPercent = Math.max(0, Math.min(100, Math.round(settings.intensity * 100)));
       intensitySlider.value = intensityPercent;
       intensityValue.textContent = `${intensityPercent}%`;
+      // Update ARIA attributes for accessibility
+      intensitySlider.setAttribute('aria-valuenow', intensityPercent.toString());
       intensitySlider.setAttribute('aria-valuetext', `${intensityPercent} percent`);
     }
 
@@ -154,6 +156,8 @@ if (intensitySlider && intensityValue) {
   intensitySlider.addEventListener('input', () => {
     const value = Math.max(0, Math.min(100, parseInt(intensitySlider.value, 10)));
     intensityValue.textContent = `${value}%`;
+    // Update ARIA attributes for accessibility
+    intensitySlider.setAttribute('aria-valuenow', value.toString());
     intensitySlider.setAttribute('aria-valuetext', `${value} percent`);
   });
 }

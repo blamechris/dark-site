@@ -589,21 +589,40 @@ class DarkModeManager {
   }
 
   adjustTextColor(bgColor, targetContrast) {
-    const bgLuminance = this.relativeLuminance(bgColor);
+    // Candidate text colors with their RGB values for contrast calculation
+    const candidates = [
+      { hex: '#ffffff', rgb: [255, 255, 255, 1] },  // Pure white
+      { hex: '#f0f0f0', rgb: [240, 240, 240, 1] },  // Light gray
+      { hex: '#e8e6e3', rgb: [232, 230, 227, 1] },  // Warm light gray
+      { hex: '#000000', rgb: [0, 0, 0, 1] },        // Pure black
+      { hex: '#0a0a0a', rgb: [10, 10, 10, 1] },     // Near black
+      { hex: '#1f1f1f', rgb: [31, 31, 31, 1] }      // Dark gray
+    ];
 
-    // Calculate if light or dark text would provide better contrast
-    const lightContrast = (0.95 + 0.05) / (bgLuminance + 0.05);
-    const darkContrast = (bgLuminance + 0.05) / (0.05 + 0.05);
+    // Find all candidates that meet the target contrast
+    const validCandidates = candidates.filter(candidate => {
+      const contrast = this.calculateContrastRatio(bgColor, candidate.rgb);
+      return contrast >= targetContrast;
+    });
 
-    // Use the one that meets the target, or the better of the two
-    if (lightContrast >= targetContrast) {
-      return '#f0f0f0';
-    } else if (darkContrast >= targetContrast) {
-      return '#0a0a0a';
-    } else {
-      // Neither meets target, use the better one
-      return lightContrast > darkContrast ? '#ffffff' : '#000000';
+    // If we have valid candidates, return the first one (preference order)
+    if (validCandidates.length > 0) {
+      return validCandidates[0].hex;
     }
+
+    // If no candidate meets the target, return the one with highest contrast
+    let best = candidates[0];
+    let bestContrast = this.calculateContrastRatio(bgColor, best.rgb);
+
+    for (const candidate of candidates.slice(1)) {
+      const contrast = this.calculateContrastRatio(bgColor, candidate.rgb);
+      if (contrast > bestContrast) {
+        best = candidate;
+        bestContrast = contrast;
+      }
+    }
+
+    return best.hex;
   }
 
   // FIXED: Preserve original fonts (Fix C2)
@@ -629,12 +648,47 @@ class DarkModeManager {
               el.style.setProperty('color', original.color);
             }
           }
+
+          // Set up MutationObserver to preserve dynamically changed colors
+          // (e.g., user changes text color in Google Docs after page load)
+          this.observeInlineColorChanges(el);
           break;
         }
       } catch (err) {
         // Selector might not be valid
       }
     }
+  }
+
+  // Observe style changes to preserve user-set colors dynamically
+  observeInlineColorChanges(el) {
+    // Only set up one observer per element
+    if (el.__darkModeColorObserver) return;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+          const inlineColor = el.style.color;
+          if (inlineColor) {
+            // Preserve the user's color choice
+            el.style.setProperty('color', inlineColor);
+          }
+        }
+      });
+    });
+
+    observer.observe(el, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+
+    // Store observer reference for cleanup
+    el.__darkModeColorObserver = observer;
+    this.eventListeners.push({
+      target: el,
+      type: 'observer',
+      handler: observer
+    });
   }
 
   // FIXED: Process already-loaded iframes + nested iframes (Fix H3)
@@ -877,10 +931,16 @@ class DarkModeManager {
       this.debounceTimer = null;
     }
 
-    // Remove event listeners
+    // Remove event listeners and MutationObservers
     this.eventListeners.forEach(({ target, type, handler }) => {
       try {
-        target.removeEventListener(type, handler);
+        if (type === 'observer') {
+          // Disconnect MutationObserver
+          handler.disconnect();
+        } else {
+          // Remove regular event listener
+          target.removeEventListener(type, handler);
+        }
       } catch (err) {
         // Target might be gone
       }
