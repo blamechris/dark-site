@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Universal Dark Mode",
+  "version": "1.0.0",
+  "description": "Make all pages dark mode without breaking special content like Google Docs",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "_comment_host_permissions": "Required: <all_urls> is necessary for a universal dark mode extension to inject CSS into all websites. This broad permission enables the extension to darken any page the user visits, which is the core functionality. Users can disable the extension per-site if desired.",
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

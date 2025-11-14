@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Dark Mode</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🌙 Universal Dark Mode</h1>
+    </header>
+
+    <main>
+      <div class="control-group">
+        <label class="toggle-container">
+          <span class="label-text">Enable Dark Mode</span>
+          <input type="checkbox" id="enableToggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="intensitySlider" class="label-text">
+          Darkness Intensity
+          <span id="intensityValue">95%</span>
+        </label>
+        <input
+          type="range"
+          id="intensitySlider"
+          min="0"
+          max="100"
+          value="95"
+          class="slider"
+          aria-label="Darkness intensity"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="95"
+          aria-valuetext="95 percent"
+        >
+        <div class="slider-labels">
+          <span>Lighter</span>
+          <span>Darker</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="preserveFonts" checked>
+          <span class="label-text">Preserve Fonts in Editors</span>
+        </label>
+        <p class="description">Keeps original fonts in Google Docs and similar apps</p>
+      </div>
+
+      <div class="control-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="handleIframes" checked>
+          <span class="label-text">Handle Nested Content</span>
+        </label>
+        <p class="description">Apply dark mode to iframes and embedded content</p>
+      </div>
+
+      <div class="control-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="textContrast" checked>
+          <span class="label-text">Ensure Text Readability</span>
+        </label>
+        <p class="description">Automatically adjust text colors for readability</p>
+      </div>
+
+      <div class="button-group">
+        <button id="saveButton" class="btn btn-primary">Save & Apply</button>
+        <button id="resetButton" class="btn btn-secondary">Reset to Defaults</button>
+      </div>
+
+      <div id="statusMessage" class="status-message"></div>
+    </main>
+
+    <footer>
+      <p class="footer-text">Reload pages after changing settings</p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
