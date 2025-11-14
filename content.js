@@ -865,10 +865,10 @@ class DarkModeManager {
           nodes.forEach(node => this.storeOriginalStyles(node));
         }
 
-        // Process nodes
+        // Process nodes - processElementsOptimized will handle descendants
+        // No need to call processElement on the node itself first
         nodes.forEach(node => {
           if (document.contains(node)) {
-            this.processElement(node);
             this.processElementsOptimized(node);
             this.processShadowRoots(node);
 
@@ -966,45 +966,48 @@ class DarkModeManager {
   }
 }
 
-// Initialize dark mode
-let darkMode = new DarkModeManager();
+// Wrap in IIFE to avoid polluting global namespace
+(function() {
+  // Initialize dark mode
+  let darkMode = new DarkModeManager();
 
-// Listen for settings changes with proper response handling (Fix H4)
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Validate sender (defense in depth, though not critical per validator)
-  if (sender.id && sender.id !== chrome.runtime.id) {
-    sendResponse({ error: 'Unauthorized' });
-    return true;
-  }
-
-  if (message.action === 'toggleDarkMode') {
-    if (typeof message.enabled !== 'boolean') {
-      sendResponse({ error: 'Invalid enabled value' });
+  // Listen for settings changes with proper response handling (Fix H4)
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // Validate sender (defense in depth, though not critical per validator)
+    if (sender.id && sender.id !== chrome.runtime.id) {
+      sendResponse({ error: 'Unauthorized' });
       return true;
     }
 
-    if (message.enabled) {
-      // Re-initialize instead of reload
-      if (darkMode) darkMode.destroy();
-      darkMode = new DarkModeManager();
-      sendResponse({ success: true });
-    } else {
-      if (darkMode) darkMode.destroy();
-      sendResponse({ success: true });
+    if (message.action === 'toggleDarkMode') {
+      if (typeof message.enabled !== 'boolean') {
+        sendResponse({ error: 'Invalid enabled value' });
+        return true;
+      }
+
+      if (message.enabled) {
+        // Re-initialize instead of reload
+        if (darkMode) darkMode.destroy();
+        darkMode = new DarkModeManager();
+        sendResponse({ success: true });
+      } else {
+        if (darkMode) darkMode.destroy();
+        sendResponse({ success: true });
+      }
+
+      return true;
+    } else if (message.action === 'updateSettings') {
+      // Update settings dynamically without reload
+      if (darkMode) {
+        darkMode.updateSettings(message.settings);
+        sendResponse({ success: true });
+      } else {
+        sendResponse({ error: 'Dark mode not initialized' });
+      }
+
+      return true;
     }
 
     return true;
-  } else if (message.action === 'updateSettings') {
-    // Update settings dynamically without reload
-    if (darkMode) {
-      darkMode.updateSettings(message.settings);
-      sendResponse({ success: true });
-    } else {
-      sendResponse({ error: 'Dark mode not initialized' });
-    }
-
-    return true;
-  }
-
-  return true;
-});
+  });
+})();

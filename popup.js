@@ -29,47 +29,58 @@ async function loadSettings() {
   try {
     const response = await chrome.runtime.sendMessage({ action: 'getSettings' });
 
-    // Validate response
+    // Check if background script responded
+    if (response == null) {
+      console.error('No response from background script when loading settings');
+      showStatus('Could not load settings: background script not responding', 'error');
+
+      // Fall back to defaults
+      const settings = defaultSettings;
+      updateUIWithSettings(settings);
+      return;
+    }
+
+    // Validate response and merge with defaults
     const settings = (response && Object.keys(response).length > 0)
       ? { ...defaultSettings, ...response }
       : defaultSettings;
 
-    // Update UI with null checks
-    if (enableToggle) {
-      enableToggle.checked = Boolean(settings.enabled);
-    }
-
-    if (intensitySlider && intensityValue) {
-      const intensityPercent = Math.max(0, Math.min(100, Math.round(settings.intensity * 100)));
-      intensitySlider.value = intensityPercent;
-      intensityValue.textContent = `${intensityPercent}%`;
-      // Update ARIA attributes for accessibility
-      intensitySlider.setAttribute('aria-valuenow', intensityPercent.toString());
-      intensitySlider.setAttribute('aria-valuetext', `${intensityPercent} percent`);
-    }
-
-    if (preserveFontsCheckbox) {
-      preserveFontsCheckbox.checked = Boolean(settings.preserveFonts);
-    }
-
-    if (handleIframesCheckbox) {
-      handleIframesCheckbox.checked = Boolean(settings.handleIframes);
-    }
-
-    if (textContrastCheckbox) {
-      textContrastCheckbox.checked = Boolean(settings.textContrast);
-    }
+    updateUIWithSettings(settings);
   } catch (err) {
     console.error('Error loading settings:', err);
     showStatus('Error loading settings. Using defaults.', 'error');
 
     // Load defaults on error
-    if (enableToggle) enableToggle.checked = defaultSettings.enabled;
-    if (intensitySlider) intensitySlider.value = defaultSettings.intensity * 100;
-    if (intensityValue) intensityValue.textContent = `${defaultSettings.intensity * 100}%`;
-    if (preserveFontsCheckbox) preserveFontsCheckbox.checked = defaultSettings.preserveFonts;
-    if (handleIframesCheckbox) handleIframesCheckbox.checked = defaultSettings.handleIframes;
-    if (textContrastCheckbox) textContrastCheckbox.checked = defaultSettings.textContrast;
+    updateUIWithSettings(defaultSettings);
+  }
+}
+
+// Helper function to update UI with settings
+function updateUIWithSettings(settings) {
+  // Update UI with null checks
+  if (enableToggle) {
+    enableToggle.checked = Boolean(settings.enabled);
+  }
+
+  if (intensitySlider && intensityValue) {
+    const intensityPercent = Math.max(0, Math.min(100, Math.round(settings.intensity * 100)));
+    intensitySlider.value = intensityPercent;
+    intensityValue.textContent = `${intensityPercent}%`;
+    // Update ARIA attributes for accessibility
+    intensitySlider.setAttribute('aria-valuenow', intensityPercent.toString());
+    intensitySlider.setAttribute('aria-valuetext', `${intensityPercent} percent`);
+  }
+
+  if (preserveFontsCheckbox) {
+    preserveFontsCheckbox.checked = Boolean(settings.preserveFonts);
+  }
+
+  if (handleIframesCheckbox) {
+    handleIframesCheckbox.checked = Boolean(settings.handleIframes);
+  }
+
+  if (textContrastCheckbox) {
+    textContrastCheckbox.checked = Boolean(settings.textContrast);
   }
 }
 
@@ -139,15 +150,24 @@ function validateUIElements() {
          preserveFontsCheckbox && handleIframesCheckbox && textContrastCheckbox;
 }
 
-// Show status message
+// Show status message with timeout management
+let statusTimeoutId = null;
+
 function showStatus(message, type) {
   if (!statusMessage) return;
 
   statusMessage.textContent = message;
   statusMessage.className = `status-message show ${type}`;
 
-  setTimeout(() => {
+  // Clear any existing timeout to prevent message conflicts
+  if (statusTimeoutId) {
+    clearTimeout(statusTimeoutId);
+  }
+
+  statusTimeoutId = setTimeout(() => {
     statusMessage.classList.remove('show');
+    statusMessage.textContent = ''; // Clear content after fade out
+    statusTimeoutId = null;
   }, 3000);
 }
 
